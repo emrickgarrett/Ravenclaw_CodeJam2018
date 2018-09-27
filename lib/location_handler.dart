@@ -15,8 +15,8 @@ class LocationHandler {
     });
   }
 
-  Future<SingleLocation> get currentLocation async {
-    return new SingleLocation(await location.getLocation());
+  Future<RavenclawLocation> get currentLocation async {
+    return new RavenclawLocation(await location.getLocation());
   }
 
   void addLocationListener(Function f) {
@@ -36,10 +36,10 @@ class LocationHandler {
   }
 }
 
-class SingleLocation {
+class RavenclawLocation {
   Map<String, double> data;
 
-  SingleLocation(Map<String, double> locationData) {
+  RavenclawLocation(Map<String, double> locationData) {
     data = locationData;
   }
 

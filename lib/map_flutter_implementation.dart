@@ -7,7 +7,7 @@ import 'location_handler.dart';
 
 class MapFlutterImplementationPage extends StatefulWidget {
 
-  final SingleLocation userLocation;
+  final RavenclawLocation userLocation;
 
   MapFlutterImplementationPage(this.userLocation);
 
@@ -18,34 +18,12 @@ class MapFlutterImplementationPage extends StatefulWidget {
 class _MapFlutterImplementationPageState extends State<MapFlutterImplementationPage> {
 
   GoogleMapController mapController;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black87,
-      appBar: new AppBar(
-        backgroundColor: StaticVariables.primaryColor,
-        title: Text(StaticVariables.appName)
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(15.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Expanded(
-                child: GoogleMap(
-                      onMapCreated: _onMapCreated
-                    )
-              ),
-              RaisedButton(
-                child: Text('Reload Data'),
-                onPressed: _reloadData
-              )
-            ],
-        )
-      )
-    );
-  }
+  CameraPosition _position;
+  GoogleMapOptions _options = GoogleMapOptions(
+      trackCameraPosition: true,
+      compassEnabled: true
+  );
+  bool _isMoving = false;
 
   void _onMapCreated(GoogleMapController controller) {
     setState(() { mapController = controller; });
@@ -67,5 +45,82 @@ class _MapFlutterImplementationPageState extends State<MapFlutterImplementationP
           )
       ));
     }
+  }
+
+  void _onMapChanged() {
+    setState(() {
+      _extractMapInfo();
+    });
+  }
+
+  void _extractMapInfo() {
+    _options = mapController.options;
+    _position = mapController.cameraPosition;
+    _isMoving = mapController.isCameraMoving;
+  }
+
+  @override
+  void dispose() {
+    mapController.removeListener(_onMapChanged);
+    super.dispose();
+  }
+
+  Widget _toggleCompassButton() {
+    return FlatButton(
+        child: Text('${_options.compassEnabled ? 'disable' : 'enable' } compass'),
+        onPressed: () {
+          mapController.updateMapOptions(GoogleMapOptions(compassEnabled: !_options.compassEnabled));
+        }
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> columnChildren = <Widget>[
+      Padding(
+          padding: EdgeInsets.all(15.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              SizedBox(
+                width: double.infinity,
+                height:300.0,
+                child: GoogleMap(
+                    onMapCreated: _onMapCreated
+                )
+            ),
+            RaisedButton(
+                child: Text('Reload Data'),
+                onPressed: _reloadData
+            )],
+          )
+      )
+    ];
+
+    if(mapController != null) {
+      columnChildren.add(
+          Flexible(
+              child: ListView(
+                  children: <Widget>[
+                    Text('camera bearing: ${_position == null ? 'nil' : _position.bearing}',),
+                    _toggleCompassButton()
+                  ]
+              )
+          )
+      );
+    }
+
+    return  Scaffold(
+        backgroundColor: Colors.white,
+        appBar: new AppBar(
+          backgroundColor: StaticVariables.primaryColor,
+          title: Text(StaticVariables.appName)
+        ),
+        body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: columnChildren
+      )
+    );
   }
 }

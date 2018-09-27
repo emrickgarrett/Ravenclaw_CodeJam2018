@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'location_handler.dart';
+import 'package:ravenclaw_codejam2018/location_handler.dart';
 import 'StaticVariables.dart';
-import 'map_flutter_implementation.dart';
+import 'package:ravenclaw_codejam2018/map_flutter_implementation.dart';
 
 void main() {
   runApp(new MyApp());
@@ -32,7 +32,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  SingleLocation location;
+  RavenclawLocation location;
   bool hasLocationPermission = false;
   LocationHandler handler = new LocationHandler();
 
@@ -41,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _autoUpdateLocation();
   }
 
-  void _updateLocation(SingleLocation newLocation) {
+  void _updateLocation(RavenclawLocation newLocation) {
     setState(() =>
       location = newLocation
     );
@@ -50,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _autoUpdateLocation() {
     if(hasLocationPermission) {
       handler.addLocationListener((location) =>
-        _updateLocation(new SingleLocation(location))
+        _updateLocation(new RavenclawLocation(location))
       );
     }
   }
@@ -66,6 +66,9 @@ class _MyHomePageState extends State<MyHomePage> {
     var isAndroid = Theme.of(context).platform == TargetPlatform.android;
     if(isAndroid) {
       var location = await handler.currentLocation;
+      if(location == null) {
+        showNoLocationDialog();
+      }
       //Navigate to map
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -92,6 +95,22 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         ]
       )
+    );
+  }
+
+  Future showNoLocationDialog() async {
+    return showDialog(
+        context: context,
+        child: AlertDialog(
+            title: Text("Unable to determine your location"),
+            content: Text("Try again later"),
+            actions: [
+              FlatButton(
+                  child: Text("Okay"),
+                  onPressed: () => Navigator.of(context).pop()
+              )
+            ]
+        )
     );
   }
 
