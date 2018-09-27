@@ -26,6 +26,10 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>${PRODUCT_NAME} always location when in use.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>${PRODUCT_NAME} always location uses your location.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
