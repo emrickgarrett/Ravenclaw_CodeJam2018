@@ -15,8 +15,8 @@ class LocationHandler {
     });
   }
 
-  Future<Map<String, double>> get currentLocation async {
-    return location.getLocation();
+  Future<SingleLocation> get currentLocation async {
+    return new SingleLocation(await location.getLocation());
   }
 
   void addLocationListener(Function f) {
@@ -34,6 +34,36 @@ class LocationHandler {
     }
     return hasPermission;
   }
+}
 
+class SingleLocation {
+  Map<String, double> data;
 
+  SingleLocation(Map<String, double> locationData) {
+    data = locationData;
+  }
+
+  double get latitude {
+    return data["latitude"];
+  }
+
+  double get longitude {
+    return data["longitude"];
+  }
+
+  double get accuracy {
+    return data["accuracy"];
+  }
+
+  double get altitude {
+    return data["altitude"];
+  }
+
+  double get speed {
+    return data["speed"];
+  }
+
+  double get speedAccuracy {
+    return data["speed_accuracy"];
+  }
 }

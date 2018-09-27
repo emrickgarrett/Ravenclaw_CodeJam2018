@@ -9,5 +9,8 @@ build/
 .flutter-plugins
 
 android/build.gradle
+android/app/build.gradle
 
 .idea/*
+
+*/Keys.dart

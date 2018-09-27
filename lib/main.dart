@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+
 import 'location_handler.dart';
 import 'StaticVariables.dart';
+import 'map_flutter_implementation.dart';
 
-void main() => runApp(new MyApp());
+void main() {
+  runApp(new MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -27,7 +32,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Map<String, double> location;
+  SingleLocation location;
   bool hasLocationPermission = false;
   LocationHandler handler = new LocationHandler();
 
@@ -36,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _autoUpdateLocation();
   }
 
-  void _updateLocation(Map<String, double> newLocation) {
+  void _updateLocation(SingleLocation newLocation) {
     setState(() =>
       location = newLocation
     );
@@ -45,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _autoUpdateLocation() {
     if(hasLocationPermission) {
       handler.addLocationListener((location) =>
-        _updateLocation(location)
+        _updateLocation(new SingleLocation(location))
       );
     }
   }
@@ -57,30 +62,69 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _navigateToMap() async {
+    var isAndroid = Theme.of(context).platform == TargetPlatform.android;
+    if(isAndroid) {
+      var location = await handler.currentLocation;
+      //Navigate to map
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) {
+            return MapFlutterImplementationPage(location);
+          }
+        )
+      );
+    } else {
+      showIosDisabledDialog();
+    }
+  }
+
+  Future showIosDisabledDialog() async {
+    return showDialog(
+      context: context,
+      child: AlertDialog(
+        title: Text("iOS Map is Currently Disabled"),
+        content: Text("Blame Google's Flutter API"),
+        actions: [
+          FlatButton(
+            child: Text("Bummer"),
+            onPressed: () => Navigator.of(context).pop()
+          )
+        ]
+      )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(widget.title),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
       ),
-      body: new Center(
-        child: new Column(
+      body: Center(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            new Text(
-              'Your current location',
+            Text(
+              'Do you have Location Permission?',
             ),
-            new Text(
-              'Have Permission? - $hasLocationPermission',
+            Text(
+              hasLocationPermission? "Yes" : "No",
               style: Theme.of(context).textTheme.display1,
             ),
+            RaisedButton(
+              onPressed: _updateLocationPermission,
+              child: Text('Refresh Permission'),
+              color: StaticVariables.primaryColor,
+              textColor: Colors.white
+            )
           ],
         ),
       ),
       floatingActionButton: new FloatingActionButton(
-        onPressed: _updateLocationPermission,
-        tooltip: 'Retry For Permission',
-        child: new Icon(Icons.refresh),
+        onPressed: _navigateToMap,
+        tooltip: 'View The Map',
+        child: new Icon(Icons.map),
       ),
     );
   }
