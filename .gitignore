@@ -9,3 +9,5 @@ build/
 .flutter-plugins
 
 android/gradle/build.gradle
+
+.idea/*
