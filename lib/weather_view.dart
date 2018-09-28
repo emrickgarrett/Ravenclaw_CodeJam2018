@@ -168,7 +168,7 @@ class WeatherType {
         color = Colors.blueGrey[100];
         return;
       default:
-        icon = Icons.wb_cloudy;
+        icon = Icons.wb_sunny;
         color = Colors.yellow[500];
         return;
     }
