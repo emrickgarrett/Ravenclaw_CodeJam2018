@@ -130,17 +130,9 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      body:  Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-//            Text(
-//              'Do you have Location Permission?',
-//            ),
-//            Text(
-//              hasLocationPermission? "Yes" : "No",
-//              style: Theme.of(context).textTheme.display1,
-//            ),
             WeatherData(notifyParent: refresh),
             RaisedButton(
               onPressed: _updateLocationPermission,
@@ -150,7 +142,6 @@ class _MyHomePageState extends State<MyHomePage> {
             )
           ],
         ),
-      ),
       floatingActionButton: new FloatingActionButton(
         onPressed: _navigateToMap,
         tooltip: 'View The Map',

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'package:ravenclaw_codejam2018/Keys.dart';
+import 'package:ravenclaw_codejam2018/weather_view.dart';
 
 class WeatherData extends StatefulWidget {
   final Function() notifyParent;
@@ -54,27 +55,21 @@ class _WeatherDataState extends State<WeatherData> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: FutureBuilder<WeatherPost>(
+    return Column(
+      children: <Widget> [
+        FutureBuilder<WeatherPost>(
         future: fetchPost(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             print(snapshot.data.toString());
-              return ListBody(
-                mainAxis: Axis.vertical,
-                children: <Widget>[
-                  Center(child: Text(snapshot.data.city)),
-                  Center(child: Text(snapshot.data.condition)),
-                  Center(child: Text(snapshot.data.description)),
-                  Center(child: Text("Windspeed: ${snapshot.data.windSpeed} mph"))
-                ],
-              );
+              return WeatherView(snapshot.data);
           } if(snapshot.hasError) {
             print(snapshot.error);
           }
             return CircularProgressIndicator();
           },
         ),
+      ]
     );
   }
 }
@@ -98,14 +93,6 @@ class WeatherPost {
 
   factory WeatherPost.fromJson(Map<String, dynamic> jsonData) {
     Map<String, dynamic> weatherJson = jsonData['weather'][0];
-    print("Standard JSON: $jsonData");
-    print("Weather JSON: $weatherJson");
-    print("Test Windspeed ${jsonData['wind']['speed']}");
-    print("Test Temp: ${jsonData['main']['temp']}");
-    print("Test TempMax: ${jsonData['main']['temp_max']}");
-    print("Test TempMin: ${jsonData['main']['temp_min']}");
-    print("Test Humidity: ${jsonData['main']['humidity']}");
-    print("Test Sunset: ${jsonData['sys']['sunset']}");
 
     return WeatherPost(
       condition: weatherJson['main'],
