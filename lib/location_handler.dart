@@ -41,6 +41,7 @@ class RavenclawLocation {
 
   RavenclawLocation(Map<String, double> locationData) {
     data = locationData;
+    print(data);
   }
 
   double get latitude {

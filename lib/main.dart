@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:ravenclaw_codejam2018/location_handler.dart';
 import 'StaticVariables.dart';
 import 'package:ravenclaw_codejam2018/map_flutter_implementation.dart';
+import 'package:ravenclaw_codejam2018/weather_info.dart';
 
 void main() {
   runApp(new MyApp());
@@ -35,6 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
   RavenclawLocation location;
   bool hasLocationPermission = false;
   LocationHandler handler = new LocationHandler();
+  bool trackingLocation = false;
 
   _MyHomePageState() {
     _updateLocationPermission();
@@ -52,6 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
       handler.addLocationListener((location) =>
         _updateLocation(new RavenclawLocation(location))
       );
+      trackingLocation = true;
     }
   }
 
@@ -60,6 +63,9 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       hasLocationPermission = hasPermission;
     });
+    if(!trackingLocation) {
+      _autoUpdateLocation();
+    }
   }
 
   void _navigateToMap() async {
@@ -80,6 +86,10 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       showIosDisabledDialog();
     }
+  }
+
+  void refresh() {
+    setState(() {});
   }
 
   Future showIosDisabledDialog() async {
@@ -124,16 +134,17 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'Do you have Location Permission?',
-            ),
-            Text(
-              hasLocationPermission? "Yes" : "No",
-              style: Theme.of(context).textTheme.display1,
-            ),
+//            Text(
+//              'Do you have Location Permission?',
+//            ),
+//            Text(
+//              hasLocationPermission? "Yes" : "No",
+//              style: Theme.of(context).textTheme.display1,
+//            ),
+            WeatherData(notifyParent: refresh),
             RaisedButton(
               onPressed: _updateLocationPermission,
-              child: Text('Refresh Permission'),
+              child: Text('Refresh Weather'),
               color: StaticVariables.primaryColor,
               textColor: Colors.white
             )
