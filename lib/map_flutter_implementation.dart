@@ -29,6 +29,12 @@ class _MapFlutterImplementationPageState extends State<MapFlutterImplementationP
   bool weatherAlertsDisplayed = false;
   bool crashAlertsDisplayed = false;
 
+  _MapFlutterImplementationPageState() {
+    new Timer.periodic(const Duration(seconds: 5), (_) {
+      updateAlertValues();
+    });
+  }
+
   void _onMapCreated(GoogleMapController controller) {
     setState(() { mapController = controller; });
     _navigateToUserLocation();
@@ -81,28 +87,42 @@ class _MapFlutterImplementationPageState extends State<MapFlutterImplementationP
   }
 
   void updateAlertValues() {
+    print("Update Alert");
     var rng = new Random();
-    var cutOff = 5; //5 percent chance to show alert
+    var cutOff = 10; //10 percent chance to show alert
     var keepChance = 85;
     var showChance = 5;
+    var displayCrime = false;
+    var displayWeather = false;
+    var displayCrash = false;
 
     if(crimeAlertsDisplayed) {
       cutOff = keepChance; // 85 percent chance to keep alert
     }
-    crimeAlertsDisplayed = rng.nextInt(100) <= cutOff;
+    displayCrime = rng.nextInt(100) <= cutOff;
     cutOff = showChance;
 
 
     if(weatherAlertsDisplayed) {
       cutOff = keepChance; // 85 percent chance to keep alert
     }
-    weatherAlertsDisplayed = rng.nextInt(100) <= cutOff;
+    displayWeather = rng.nextInt(100) <= cutOff;
     cutOff = showChance;
 
     if(crashAlertsDisplayed) {
       cutOff = keepChance; // 85 percent chance to keep alert
     }
-    crashAlertsDisplayed = rng.nextInt(100) <= cutOff;
+    displayCrash = rng.nextInt(100) <= cutOff;
+
+    if(displayCrime) { print("Crime!"); }
+    if(displayWeather) { print("Weather!"); }
+    if(displayCrash) { print("Crash!"); }
+
+    setState(() {
+      crimeAlertsDisplayed = displayCrime;
+      weatherAlertsDisplayed = displayWeather;
+      crashAlertsDisplayed = displayCrash;
+    });
   }
 
   TextStyle get alertTextStyle {
@@ -114,7 +134,6 @@ class _MapFlutterImplementationPageState extends State<MapFlutterImplementationP
   }
 
   Widget get alerts {
-    updateAlertValues();
     bool notNull(Object o) => o != null;
     Column alertChildren = Column(
         children: <Widget>[
@@ -126,9 +145,8 @@ class _MapFlutterImplementationPageState extends State<MapFlutterImplementationP
         ].where(notNull).toList()
     );
 
-    if(alertChildren.children.isNotEmpty) {
+    if(crimeAlertsDisplayed || weatherAlertsDisplayed || crashAlertsDisplayed) {
       return Container(
-          padding: EdgeInsets.all(10.0),
           decoration: new BoxDecoration(color: Colors.red),
           child: alertChildren,
       );
@@ -140,8 +158,9 @@ class _MapFlutterImplementationPageState extends State<MapFlutterImplementationP
   Widget get crimeClaimAlerts {
     if(crimeAlertsDisplayed) {
       return Container(
-        child: Text(
-          "High Crime Detected",
+          padding: EdgeInsets.all(10.0),
+          child: Text(
+          "High Crime Detected 🦇🙋‍♂️",
           style: alertTextStyle
         )
       );
@@ -153,6 +172,7 @@ class _MapFlutterImplementationPageState extends State<MapFlutterImplementationP
   Widget get weatherDamageAlert {
     if(weatherAlertsDisplayed) {
       return Container(
+        padding: EdgeInsets.all(10.0),
         child: Text(
           "Weather Damage Detected In Your Area",
             style: alertTextStyle
@@ -166,7 +186,8 @@ class _MapFlutterImplementationPageState extends State<MapFlutterImplementationP
   Widget get crashClaimAlert {
     if(crashAlertsDisplayed) {
       return Container(
-        child: Text(
+          padding: EdgeInsets.all(10.0),
+          child: Text(
           "High Crash Potential Detected",
             style: alertTextStyle
         )
