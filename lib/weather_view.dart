@@ -45,7 +45,21 @@ class _WeatherViewState extends State<WeatherView> {
         fontSize: 22.0);
   }
 
+  TextStyle getTemperatureTextStyle(Color color) {
+    return TextStyle(
+      color: color,
+      fontWeight: FontWeight.w300,
+      fontSize:16.0
+    );
+  }
 
+  TextStyle get warningTextStyle {
+    return TextStyle(
+      color: Colors.white,
+      fontWeight: FontWeight.w500,
+      fontSize: 22.0
+    );
+  }
 
   Widget get title {
     return Center(
@@ -80,7 +94,8 @@ class _WeatherViewState extends State<WeatherView> {
                   Text(
                     widget.data.condition,
                     style: weatherTextStyle,
-                  )
+                  ),
+                  description
                 ]
             )
         )
@@ -91,7 +106,7 @@ class _WeatherViewState extends State<WeatherView> {
     return Center(
         child: Text(
             widget.data.description,
-            style: standardTextStyle
+            style: weatherTextStyle
         ));
   }
 
@@ -103,11 +118,112 @@ class _WeatherViewState extends State<WeatherView> {
         ));
   }
 
+  Widget get temperature {
+    return Center(
+      child: Container(
+        padding: EdgeInsets.only(top: 30.0, bottom: 15.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Column(
+              children: <Widget>[
+                Icon(
+                  Icons.ac_unit,
+                  color: Colors.lightBlue[300],
+                  size: 60.0
+                ),
+                Padding(padding: EdgeInsets.all(5.0)),
+                Text(
+                    "${widget.data.minTemp}° F",
+                    style: getTemperatureTextStyle(Colors.lightBlue[300]),
+                    textAlign: TextAlign.center,
+                )
+              ]
+            ),
+            Column(
+              children:<Widget>[
+                Icon(
+                  Icons.calendar_today,
+                  color: Colors.green[400],
+                  size: 60.0
+                ),
+                Padding(padding: EdgeInsets.all(5.0)),
+                Text(
+                    "${widget.data.temp}° F",
+                    style: getTemperatureTextStyle(Colors.green[400]),
+                    textAlign: TextAlign.center,
+                )
+              ]
+            ),
+            Column(
+              children:<Widget>[
+                Icon(
+                    Icons.hot_tub,
+                    color: Colors.red[400],
+                    size: 60.0
+                ),
+                Padding(padding: EdgeInsets.all(5.0)),
+                Text(
+                    "${widget.data.maxTemp}° F",
+                    style: getTemperatureTextStyle(Colors.red[400]),
+                    textAlign: TextAlign.center,
+                )
+
+              ]
+            )
+          ]
+        )
+      )
+    );
+  }
+
   Widget get warnings {
-    if(false) {
-      return Text("You are dead m8");
+    Column warnings = Column(
+      children: <Widget>[]
+    );
+
+    WeatherType weatherType = new WeatherType(widget.data.description);
+    if(weatherType.isDangerousWeather) {
+      warnings.children.add(
+        Container(
+            padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
+            child: Text(
+              "Warning! Dangerous Weather!",
+              style: warningTextStyle
+          )
+        )
+      );
     }
-    return Container();
+    if(widget.data.windSpeed > 30) {
+      if(warnings.children.isNotEmpty) {
+        warnings.children.add(
+          Divider(
+            color: Colors.white,
+            height: 2.0
+          )
+        );
+      }
+      warnings.children.add(
+        Container(
+              padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
+              child: Text(
+            "Be careful of high wind speeds!",
+            style: warningTextStyle
+           )
+         )
+      );
+    }
+
+    if(warnings.children.isNotEmpty) {
+      return Center(
+          child: Container(
+              decoration: new BoxDecoration(color: Colors.red),
+              child: warnings
+          )
+      );
+    } else {
+      return Column();
+    }
   }
 
   @override
@@ -119,8 +235,8 @@ class _WeatherViewState extends State<WeatherView> {
           title,
           header,
           condition,
-          description,
           windSpeed,
+          temperature,
           warnings
           ],
         )
@@ -132,6 +248,7 @@ class WeatherType {
   String description;
   IconData icon;
   Color color;
+  bool isDangerousWeather = false;
 
   WeatherType(String weatherDescription) {
     description = weatherDescription;
@@ -160,8 +277,9 @@ class WeatherType {
         color = Colors.yellow[800];
         return;
       case "snow":
-        icon = Icons.pregnant_woman;
+        icon = Icons.ac_unit;
         color = Colors.blueGrey[200];
+        isDangerousWeather = true;
         return;
       case "mist":
         icon = Icons.fast_rewind;
