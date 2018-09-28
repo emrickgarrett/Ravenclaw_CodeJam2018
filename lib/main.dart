@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:flutter/services.dart';
 
 import 'package:ravenclaw_codejam2018/location_handler.dart';
 import 'StaticVariables.dart';
@@ -8,6 +9,10 @@ import 'package:ravenclaw_codejam2018/weather_info.dart';
 
 void main() {
   runApp(new MyApp());
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.portraitUp
+  ]);
 }
 
 class MyApp extends StatelessWidget {

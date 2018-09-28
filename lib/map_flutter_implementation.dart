@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:ravenclaw_codejam2018/StaticVariables.dart';
 import 'location_handler.dart';
+import 'dart:math';
 
 class MapFlutterImplementationPage extends StatefulWidget {
 
@@ -24,6 +25,9 @@ class _MapFlutterImplementationPageState extends State<MapFlutterImplementationP
       compassEnabled: true
   );
   bool _isMoving = false;
+  bool crimeAlertsDisplayed = false;
+  bool weatherAlertsDisplayed = false;
+  bool crashAlertsDisplayed = false;
 
   void _onMapCreated(GoogleMapController controller) {
     setState(() { mapController = controller; });
@@ -54,9 +58,11 @@ class _MapFlutterImplementationPageState extends State<MapFlutterImplementationP
   }
 
   void _extractMapInfo() {
-    _options = mapController.options;
-    _position = mapController.cameraPosition;
-    _isMoving = mapController.isCameraMoving;
+    setState(() {
+      _options = mapController.options;
+      _position = mapController.cameraPosition;
+      _isMoving = mapController.isCameraMoving;
+    });
   }
 
   @override
@@ -74,6 +80,102 @@ class _MapFlutterImplementationPageState extends State<MapFlutterImplementationP
     );
   }
 
+  void updateAlertValues() {
+    var rng = new Random();
+    var cutOff = 5; //5 percent chance to show alert
+    var keepChance = 85;
+    var showChance = 5;
+
+    if(crimeAlertsDisplayed) {
+      cutOff = keepChance; // 85 percent chance to keep alert
+    }
+    crimeAlertsDisplayed = rng.nextInt(100) <= cutOff;
+    cutOff = showChance;
+
+
+    if(weatherAlertsDisplayed) {
+      cutOff = keepChance; // 85 percent chance to keep alert
+    }
+    weatherAlertsDisplayed = rng.nextInt(100) <= cutOff;
+    cutOff = showChance;
+
+    if(crashAlertsDisplayed) {
+      cutOff = keepChance; // 85 percent chance to keep alert
+    }
+    crashAlertsDisplayed = rng.nextInt(100) <= cutOff;
+  }
+
+  TextStyle get alertTextStyle {
+    return TextStyle(
+      fontWeight: FontWeight.w400,
+      fontSize: 18.0,
+      color: Colors.white
+    );
+  }
+
+  Widget get alerts {
+    updateAlertValues();
+    bool notNull(Object o) => o != null;
+    Column alertChildren = Column(
+        children: <Widget>[
+          crimeClaimAlerts,
+          crimeAlertsDisplayed && weatherAlertsDisplayed? Divider(color: Colors.white, height: 2.0) : null,
+          weatherDamageAlert,
+          (crimeAlertsDisplayed || weatherAlertsDisplayed) && crashAlertsDisplayed? Divider(color: Colors.white, height: 2.0) : null,
+          crashClaimAlert
+        ].where(notNull).toList()
+    );
+
+    if(alertChildren.children.isNotEmpty) {
+      return Container(
+          padding: EdgeInsets.all(10.0),
+          decoration: new BoxDecoration(color: Colors.red),
+          child: alertChildren,
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget get crimeClaimAlerts {
+    if(crimeAlertsDisplayed) {
+      return Container(
+        child: Text(
+          "High Crime Detected",
+          style: alertTextStyle
+        )
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget get weatherDamageAlert {
+    if(weatherAlertsDisplayed) {
+      return Container(
+        child: Text(
+          "Weather Damage Detected In Your Area",
+            style: alertTextStyle
+        )
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget get crashClaimAlert {
+    if(crashAlertsDisplayed) {
+      return Container(
+        child: Text(
+          "High Crash Potential Detected",
+            style: alertTextStyle
+        )
+      );
+    } else {
+      return Container();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Widget> columnChildren = <Widget>[
@@ -88,11 +190,12 @@ class _MapFlutterImplementationPageState extends State<MapFlutterImplementationP
                 child: GoogleMap(
                     onMapCreated: _onMapCreated
                 )
-            ),
-            RaisedButton(
-                child: Text('Reload Data'),
-                onPressed: _reloadData
-            )],
+              ),
+              RaisedButton(
+                  child: Text('Recenter Map'),
+                  onPressed: _reloadData
+              ),
+            ],
           )
       )
     ];
@@ -102,8 +205,9 @@ class _MapFlutterImplementationPageState extends State<MapFlutterImplementationP
           Flexible(
               child: ListView(
                   children: <Widget>[
-                    Text('camera bearing: ${_position == null ? 'nil' : _position.bearing}',),
-                    _toggleCompassButton()
+                    Center(child: Text('camera bearing: ${_position == null ? 'nil' : _position.bearing}',)),
+                    _toggleCompassButton(),
+                    alerts
                   ]
               )
           )
