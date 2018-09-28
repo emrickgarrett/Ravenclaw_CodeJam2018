@@ -43,7 +43,7 @@ class _WeatherDataState extends State<WeatherData> {
 
   Future<WeatherPost> fetchPost() async {
     final response =
-    await http.get('https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&APPID=${Keys.openWeatherKey}');
+    await http.get('https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&units=imperial&APPID=${Keys.openWeatherKey}');
 
     if (response.statusCode == 200) {
       hasLocation = true;
@@ -81,7 +81,7 @@ class WeatherPost {
   final double temp;
   final double maxTemp;
   final double minTemp;
-  final int humidity;
+  final double humidity;
   final double windSpeed;
   final int sunrise;
   final int sunset;
@@ -93,15 +93,15 @@ class WeatherPost {
 
   factory WeatherPost.fromJson(Map<String, dynamic> jsonData) {
     Map<String, dynamic> weatherJson = jsonData['weather'][0];
-
+    print(jsonData);
     return WeatherPost(
       condition: weatherJson['main'],
       description: weatherJson['description'],
-      temp: jsonData['main']['temp'],
-      maxTemp: jsonData['main']['temp_max'],
-      minTemp: jsonData['main']['temp_min'],
-      humidity: jsonData['main']['humidity'],
-      windSpeed: jsonData['wind']['speed'],
+      temp: jsonData['main']['temp'] + .0,
+      maxTemp: jsonData['main']['temp_max'] + .0,
+      minTemp: jsonData['main']['temp_min'] + .0,
+      humidity: jsonData['main']['humidity'] + .0,
+      windSpeed: jsonData['wind']['speed'] + .0,
       sunrise: jsonData['sys']['sunrise'],
       sunset: jsonData['sys']['sunset'],
       city: jsonData['name']

@@ -66,14 +66,15 @@ class _WeatherViewState extends State<WeatherView> {
   }
 
   Widget get condition {
+    WeatherType weather = new WeatherType(widget.data.description);
     return Center(
         child: Container(
             padding: EdgeInsets.only(top: 20.0, bottom: 10.0),
             child: Column(
                 children: <Widget> [
                   Icon(
-                      Icons.wb_sunny,
-                      color: Colors.yellow[500],
+                      weather.icon,
+                      color: weather.color,
                       size: 120.0
                   ),
                   Text(
@@ -124,5 +125,52 @@ class _WeatherViewState extends State<WeatherView> {
           ],
         )
     );
+  }
+}
+
+class WeatherType {
+  String description;
+  IconData icon;
+  Color color;
+
+  WeatherType(String weatherDescription) {
+    description = weatherDescription;
+    setIcon(weatherDescription);
+  }
+
+  void setIcon(String description) {
+    switch(description.toLowerCase()) {
+      case "clear sky":
+        icon = Icons.wb_sunny;
+        color = Colors.yellow[500];
+        return;
+      case "few clouds":
+      case "scattered clouds":
+      case "broken clouds":
+        icon = Icons.wb_cloudy;
+        color = Colors.blueGrey[300];
+        return;
+      case "shower rain":
+      case "rain":
+        icon = Icons.pool;
+        color = Colors.lightBlue[300];
+        return;
+      case "thunderstorm":
+        icon = Icons.lightbulb_outline;
+        color = Colors.yellow[800];
+        return;
+      case "snow":
+        icon = Icons.pregnant_woman;
+        color = Colors.blueGrey[200];
+        return;
+      case "mist":
+        icon = Icons.fast_rewind;
+        color = Colors.blueGrey[100];
+        return;
+      default:
+        icon = Icons.wb_cloudy;
+        color = Colors.yellow[500];
+        return;
+    }
   }
 }
